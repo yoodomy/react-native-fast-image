@@ -11,6 +11,7 @@ import {
     StyleProp,
     TransformsStyle,
     AccessibilityProps,
+    Platform
 } from 'react-native'
 
 const FastImageViewNativeModule = NativeModules.FastImageView
@@ -144,17 +145,16 @@ function FastImageBase({
     forwardedRef,
     ...props
 }: FastImageProps & { forwardedRef: React.Ref<any> }) {
-    if (fallback) {
+    if (fallback || Platform.OS === 'web') {
         const cleanedSource = { ...(source as any) }
         delete cleanedSource.cache
-        const resolvedSource = Image.resolveAssetSource(cleanedSource)
 
         return (
             <View style={[styles.imageContainer, style]} ref={forwardedRef}>
                 <Image
                     {...props}
                     style={StyleSheet.absoluteFill}
-                    source={resolvedSource}
+                    source={cleanedSource}
                     onLoadStart={onLoadStart}
                     onProgress={onProgress}
                     onLoad={onLoad as any}
@@ -224,10 +224,12 @@ const styles = StyleSheet.create({
 })
 
 // Types of requireNativeComponent are not correct.
-const FastImageView = (requireNativeComponent as any)(
-    'FastImageView',
-    FastImage,
-    {
+let FastImageView
+
+if (Platform.OS === 'web') {
+    FastImageView = Image
+} else {
+    FastImageView = requireNativeComponent('FastImageView', FastImage, {
         nativeOnly: {
             onFastImageLoadStart: true,
             onFastImageProgress: true,
@@ -235,7 +237,7 @@ const FastImageView = (requireNativeComponent as any)(
             onFastImageError: true,
             onFastImageLoadEnd: true,
         },
-    },
-)
+    })
+}
 
 export default FastImage
