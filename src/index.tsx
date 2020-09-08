@@ -223,21 +223,21 @@ const styles = StyleSheet.create({
     },
 })
 
-// Types of requireNativeComponent are not correct.
-let FastImageView
-
-if (Platform.OS === 'web') {
-    FastImageView = Image
-} else {
-    FastImageView = requireNativeComponent('FastImageView', FastImage, {
-        nativeOnly: {
-            onFastImageLoadStart: true,
-            onFastImageProgress: true,
-            onFastImageLoad: true,
-            onFastImageError: true,
-            onFastImageLoadEnd: true,
+// Types of requireNativeComponent are not correct.s
+    const FastImageView = Platform.OS === 'web' 
+    ? Image : 
+    (requireNativeComponent as any)(
+        'FastImageView',
+        FastImage,
+        {
+            nativeOnly: {
+                onFastImageLoadStart: true,
+                onFastImageProgress: true,
+                onFastImageLoad: true,
+                onFastImageError: true,
+                onFastImageLoadEnd: true,
+            },
         },
-    })
-}
+    )
 
 export default FastImage
